@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: frontend
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.35
+        command: ['sh', '-c']
+        args:
+        - | 
+          echo "Waiting for database port to be available..."
+          until nc -z $MYSQL_HOST 3306; do
+            echo "Database port not ready, waiting..."
+            sleep 2
+          done
+          echo "Database port is ready!"
+        env:
+        - name: MYSQL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: todo-configmap
+              key: MYSQL_HOST
+      containers:
+      - image: ghcr.io/bennyro-mta/todolist:1.6
+        name: todolist
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: todo-configmap
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: todo-secret
+              key: MYSQL_PASSWORD
+        - name: MYSQL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: todo-configmap
+              key: MYSQL_HOST
+        - name: MYSQL_DB
+          valueFrom:
+            configMapKeyRef:
+              name: todo-configmap
+              key: MYSQL_DB
+        resources: {}
+status: {}
