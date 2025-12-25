@@ -34,7 +34,7 @@ spec:
               name: todo-configmap
               key: MYSQL_HOST
       containers:
-      - image: ghcr.io/bennyro-mta/todolist:1.6
+      - image: ghcr.io/bennyro-mta/todolist:1.7
         name: todolist
         ports:
         - containerPort: 5000

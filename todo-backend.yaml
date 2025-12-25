@@ -15,6 +15,10 @@ spec:
       labels:
         app: backend
     spec:
+      volumes:
+      - name: todo-storage
+        persistentVolumeClaim:
+          claimName: todo-pvc
       containers:
       - image: mariadb:latest
         name: mariadb
@@ -41,5 +45,8 @@ spec:
             configMapKeyRef:
               name: todo-configmap
               key: MYSQL_DB
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: todo-storage
         resources: {}
 status: {}
