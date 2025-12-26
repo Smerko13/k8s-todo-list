@@ -1,15 +1,15 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: backend
   name: backend
 spec:
+  serviceName: "backend"
   replicas: 1
   selector:
     matchLabels:
       app: backend
-  strategy: {}
   template:
     metadata:
       labels:
@@ -48,5 +48,10 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/mysql
           name: todo-storage
-        resources: {}
-status: {}
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

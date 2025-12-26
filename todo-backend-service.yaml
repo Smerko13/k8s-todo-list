@@ -5,11 +5,9 @@ metadata:
     app: backend
   name: backend
 spec:
+  clusterIP: None
+  type: ClusterIP
   ports:
   - port: 3306
-    protocol: TCP
-    targetPort: 3306
   selector:
     app: backend
-status:
-  loadBalancer: {}

@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    metadata:
+      name: backup
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: mysql-data
+            persistentVolumeClaim:
+              claimName: todo-pvc
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: todo-backup-pvc
+          containers:
+          - image: busybox
+            name: backup
+            command:
+            - sh
+            - -c
+            - |
+              BACKUP_FILE="/backup/mysql-backup-$(date +%Y%m%d-%H%M%S).tar.gz"
+              tar -czf $BACKUP_FILE -C /data .
+              echo "Backup completed: $BACKUP_FILE"
+            volumeMounts:
+            - name: mysql-data
+              mountPath: /data
+              readOnly: true
+            - name: backup-storage
+              mountPath: /backup
+          restartPolicy: OnFailure
